@@ -97,8 +97,12 @@ if [ -z "$MAKEFILE" ] ; then
         else
             MAKEBAS=aix4
         fi
-    elif [ `echo $PLATFORM | sed -e "s/^CYGWIN.*/CYGWIN/"` = "CYGWIN" ] ; then
+    elif expr "$PLATFORM" : "CYGWIN.*" >/dev/null; then
         MAKEBAS=cygwin
+        X11_MAKEINC=/usr/X11R6/include
+        X11_MAKELIB=/usr/X11R6/lib
+    elif expr "$PLATFORM" : "MSYS_NT-.*" >/dev/null; then
+        MAKEBAS=msys2
         X11_MAKEINC=/usr/X11R6/include
         X11_MAKELIB=/usr/X11R6/lib
     elif [ $PLATFORM = "Darwin" ] ; then

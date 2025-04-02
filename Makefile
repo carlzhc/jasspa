@@ -26,16 +26,17 @@ OSV=$(shell grep -E 'VERSION_ID=' /etc/os-release | sed -E 's/VERSION_ID="?([0-9
 DIST=$(shell grep -E '^ID=' /etc/os-release | sed -E 's/ID=//')
 OSVERSION="$(DIST)$(OSV)"
 default:
-	echo "Makefile for Linux systems"
-	echo "Usage make bfs-bin|me-bin|me-standalone"
+	echo "Makefile for Linux/Msys systems"
+	echo "Usage make bfs-bin|me-bin|me-standalone|msys"
 	echo `uname -a`
 	echo `uname -o`
 	echo "$(VERSION) OS $(OS) OSVERSION $(OSVERSION) OSV $(OSV)"
-bfs-bin:
+bfs-bin: bin/bfs
+bin/bfs:
 	-mkdir bin
 	cd bfs && make
 	cp bfs/bfs bin/
-	
+
 bfs-win-bin:
 	-mkdir bin
 	cd bfs && make clean
@@ -52,10 +53,11 @@ mew-bin:
 	cd src && cp mec ./linux32gcc-release-mew/
 	cp src/.linux32gcc-release-mew/mew bin/
 me-bin: mec-bin
-	cd src && make -f linux32gcc.gmk 
+	cd src && make -f linux32gcc.gmk
 	#cd src && make -f linux32gcc.gmk BTYP=w
-	cp src/.linux32gcc-release-mecw/mecw bin/mew
-	#cp src/.linux32gcc-release-mew/mew bin/	
+	#cp src/.linux32gcc-release-mecw/mecw bin/mew
+	#cp src/.linux32gcc-release-mew/mew bin/
+	find src -type f -perm 755 -name 'me*' -exec cp -vf {} bin/ \;
 
 mec-bfs-linux:
 	-rm -rf me-bfs/*
@@ -82,10 +84,10 @@ me-bfs-linux:
 	#cp -r jasspa/contrib me-bfs/jasspa/
 	cp jasspa/spelling/*$(dict)*f me-bfs/jasspa/spelling/
 	cd me-bfs && ../bin/bfs -a ../src/.linux32gcc-release-mec/mec -o ../mec-linux.bin ./jasspa
-	cd me-bfs && ../bin/bfs -a ../src/.linux32gcc-release-mecw/mecw -o ../mew-linux.bin ./jasspa	
-	#cd me-bfs && ../bin/bfs -a ../src/.linux32gcc-release-mew/mew-o ../mew-linux.bin ./jasspa	
-	cp mew-linux.bin mew-$(os).bin	
-	#cp mecw-linux.bin mecw-$(os).bin		
+	cd me-bfs && ../bin/bfs -a ../src/.linux32gcc-release-mecw/mecw -o ../mew-linux.bin ./jasspa
+	#cd me-bfs && ../bin/bfs -a ../src/.linux32gcc-release-mew/mew-o ../mew-linux.bin ./jasspa
+	cp mew-linux.bin mew-$(os).bin
+	#cp mecw-linux.bin mecw-$(os).bin
 	cd me-bfs && ../bin/bfs -c macros-`date +%Y-%m-%d`.bfs ./jasspa
 	cp me-bfs/macros-`date +%Y-%m-%d`.bfs .
 
@@ -96,7 +98,7 @@ me-bfs-bin: me-bfs-linux
 mingw-w32-compile:
 	cd src && make -f win32mingw.mak CC=i686-w64-mingw32-gcc RC=i686-w64-mingw32-windres
 	cd src && make -f win32mingw.mak CC=i686-w64-mingw32-gcc RC=i686-w64-mingw32-windres BTYP=c
-mingw-w32-run:	
+mingw-w32-run:
 	cd src && MEPATH=Z:/home/groth/workspace/microemacs/jasspa/macros wine ./.win32mingw-release-mew/mew32.exe
 app-image:
 	chmod 755 jme.AppDir/AppRun
@@ -120,21 +122,21 @@ run-tuser:
 	MENAME=tuser MEPATH=`pwd`/tuser:`pwd`/jasspa/macros src/.linux32gcc-release-mecw/mecw
 folder-unix:
 	-mkdir MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb
-	-mkdir MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb	
+	-mkdir MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb
 	cp mec-linux.bin MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb/mecb
 	cp mew-linux.bin MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb/mewb
-	cp bfs/bfs-readme.md bin/bfs license.txt README.txt MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb/ 	
-	cp bfs/bfs-readme.md bin/bfs license.txt README.txt MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb/ 		
+	cp bfs/bfs-readme.md bin/bfs license.txt README.txt MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb/
+	cp bfs/bfs-readme.md bin/bfs license.txt README.txt MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb/
 	cp doc/me.1 MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb/
 	cp doc/me.1 MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb/
 zip-unix: folder-unix
 	zip MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb.zip MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mewb/*
-	zip MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb.zip MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb/*	
+	zip MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb.zip MicroEmacs09-$(VERSION)-$(OS)-$(OSVERSION)-mecb/*
 folder-windows:
 	-mkdir MicroEmacs09-$(VERSION)-windows-mecb
-	-mkdir MicroEmacs09-$(VERSION)-windows-mewb	
+	-mkdir MicroEmacs09-$(VERSION)-windows-mewb
 	cp mew-bfs-windows.exe MicroEmacs09-$(VERSION)-windows-mewb/mewb.exe
-	cp mec-bfs-windows.exe MicroEmacs09-$(VERSION)-windows-mecb/mewb.exe	
+	cp mec-bfs-windows.exe MicroEmacs09-$(VERSION)-windows-mecb/mewb.exe
 	cp bfs/bfs-readme.md bin/bfs.exe README.txt license.txt MicroEmacs09-$(VERSION)-windows-mewb/
 	cp bfs/bfs-readme.md bin/bfs.exe README.txt license.txt MicroEmacs09-$(VERSION)-windows-mecb/
 	cp doc/me.1 MicroEmacs09-$(VERSION)-windows-mewb/
@@ -145,3 +147,26 @@ zip-windows: folder-windows
 me-ehf:
 	cd doc && make ehf
 	cp doc/me.ehf jasspa/macros/
+
+msys2-bin/bfs:
+	mkdir -p $(@D)
+	cd bfs && make
+	cp bfs/bfs $@
+
+msys msys2: msys2-bin/bfs
+	cd src && ./build -t c
+	-rm -rf msys2-me-bfs/*
+	-mkdir -p msys2-me-bfs/jasspa/spelling
+	cp -r jasspa/macros msys2-me-bfs/jasspa/
+	-rm -f msys2-me-bfs/jasspa/macros/*~
+	-rm -f msys2-me-bfs/jasspa/macros/*.bak
+	-rm msys2-me-bfs/jasspa/macros/null
+	cp -r jasspa/contrib msys2-me-bfs/jasspa/
+	cp jasspa/spelling/*$(dict)*f msys2-me-bfs/jasspa/spelling/
+	find src -maxdepth 1 -type f -perm 755 -name 'me*' -exec cp -vf {} msys2-bin/ \;
+	[ -f msys2-bin/mecw.exe] && (cd msys2-me-bfs && ../msys2-bin/bfs -a ../msys2-bin/mecw.exe -o ../msys2-bin/mecw-windows.exe ./jasspa) ||:
+	[ -f msys2-bin/mew32.exe ] && (cd msys2-me-bfs && ../msys2-bin/bfs -a ../msys2-bin/mew32.exe -o ../msys2-bin/me32-windows.exe ./jasspa) ||:
+	[ -f msys2-bin/mec32.exe ] && (cd msys2-me-bfs && ../msys2-bin/bfs -a ../msys2-bin/mec32.exe -o ../msys2-bin/mec32-windows.exe ./jasspa) ||:
+	[ -f msys2-bin/mec.exe ] && (cd msys2-me-bfs && ../msys2-bin/bfs -a ../msys2-bin/mec.exe -o ../msys2-bin/mec-windows.exe ./jasspa) ||:
+	[ -f msys2-bin/mec -a ! -f msys2-bin/mec.exe ] && (cd msys2-me-bfs && ../msys2-bin/bfs -a ../msys2-bin/mec -o ../msys2-bin/mec-linux.bin ./jasspa) ||:
+	[ -f msys2-bin/me*-windows.exe ] || [ -f msys2-bin/me*-linux.bin ]
